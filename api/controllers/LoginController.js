@@ -15,10 +15,43 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-module.exports = {
-    
-  
+ var GooglePlusStrategy = require('passport-google-plus'),
+  passport = require('passport');
 
+passport.use(new GooglePlusStrategy({
+    clientId: '695943043901.apps.googleusercontent.com',
+    clientSecret: 'QR1HU6_h9LuuvmSRe-GRqG6e'
+  },
+  function(tokens, profile, done) {
+    // Create or update user, call done() when complete...
+    console.log(profile, tokens, 'wts')
+    done(null, profile, tokens);
+  }
+));
+
+module.exports = {
+
+  landing: function(req, res) {
+    return res.view({
+        corndogs: [{name: 'Hank the Corndog'}, {name: 'Lenny the Corndog'}]
+    });
+  },
+  authenticate: function(req, res){
+    console.log('authenticate!!!!!!!')
+
+  },
+
+  destroy: function(req, res) {
+
+  },
+
+  tag: function(req, res) {
+
+  },
+
+  like: function(req, res) {
+
+  },
 
   /**
    * Overrides for the settings in `config/controllers.js`
