@@ -26,6 +26,8 @@
  *
  */
 
+ 
+
 module.exports.routes = {
 
   // By default, your root route (aka home page) points to a view
@@ -38,7 +40,6 @@ module.exports.routes = {
   '/auth/google/callback':{
     controller: 'LoginController',
     action: 'authenticate'
-
   }
 
   /*

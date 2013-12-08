@@ -15,29 +15,48 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
- var GooglePlusStrategy = require('passport-google-plus'),
-  passport = require('passport');
 
-passport.use(new GooglePlusStrategy({
-    clientId: '695943043901.apps.googleusercontent.com',
-    clientSecret: 'QR1HU6_h9LuuvmSRe-GRqG6e'
-  },
-  function(tokens, profile, done) {
-    // Create or update user, call done() when complete...
-    console.log(profile, tokens, 'wts')
-    done(null, profile, tokens);
-  }
-));
+
+var googleapis = require('googleapis');
+var OAuth2Client = googleapis.OAuth2Client;
+
+var Login = require('../models/Login'),
+  clients = require('../adapters/clients');
+
+// Client ID and client secret are available at
+// https://code.google.com/apis/console
+var CLIENT_ID = clients.google.id,
+  CLIENT_SECRET = clients.google.secret,
+  REDIRECT_URL = clients.google.redir;
+
+
+
+
 
 module.exports = {
 
   landing: function(req, res) {
-    return res.view({
-        corndogs: [{name: 'Hank the Corndog'}, {name: 'Lenny the Corndog'}]
+
+    googleapis
+      .discover('plus', 'v1')
+      .execute(function(err, client) {
+
+      var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
+      // retrieve an access token
+      Login.getUrl(oauth2Client, function(url) {
+        return res.view({
+          oauthUrl: url
+        });
+      });
     });
   },
   authenticate: function(req, res){
-    console.log('authenticate!!!!!!!')
+
+    googleapis.discover('plus', 'v1').execute(function(err, client) {
+      var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
+      Login.getUserProfile(client, oauth2Client, 'me', Login.printUserProfile);
+
+    });
 
   },
 
