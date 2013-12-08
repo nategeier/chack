@@ -1,0 +1,10 @@
+<h1>Match {{ match.name }}</h1>
+
+<section class="scoreboard">
+  <div ng-repeat="player in match.users" class="player-score">
+    <h3>{{ player.name }}</h3>
+    <div class="score">
+      <span>Score: {{ player.wins }}</span>
+    </div>
+  </div>
+</section>
