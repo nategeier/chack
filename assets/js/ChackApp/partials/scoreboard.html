@@ -5,6 +5,8 @@
     <h3>{{ player.name }}</h3>
     <div class="score">
       <span>Score: {{ player.wins }}</span>
+      <button ng-click="addWin(player)">Add Win</button>
+      <button ng-click="removeWin(player)">Remove Win</button>
     </div>
   </div>
 </section>

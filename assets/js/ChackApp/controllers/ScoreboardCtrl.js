@@ -7,7 +7,19 @@ angular.module('ChackApp').controller(
     [
         '$scope', '$routeParams', 'MatchService',
         function($scope, $routeParams, MatchService) {
-            $scope.match = MatchService.get($routeParams);
+            var match = MatchService.get($routeParams);
+
+            $scope.addWin = function(player) {
+                player.wins += 1;
+                match.$save();
+            };
+
+            $scope.removeWin = function(player) {
+                player.wins -= 1;
+                match.$save();
+            };
+
+            $scope.match = match;
         }
     ]
 );

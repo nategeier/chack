@@ -7,7 +7,9 @@ angular.module('ChackApp').factory(
     [
         '$resource',
         function($resource) {
-            return $resource('/match/:id');
+            return $resource('/match/:id', {}, {
+                save: {method: 'PUT'}
+            });
         }
     ]
 );
