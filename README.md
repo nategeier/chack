@@ -1,0 +1,2 @@
+# chack
+### a Sails application
