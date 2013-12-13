@@ -16,19 +16,22 @@
  */
 
 var Login = require('../models/Login'),
-    clients = require('../adapters/clients');
-
-// Client ID and client secret are available at
-// https://code.google.com/apis/console
-var googleapis = require('googleapis'),
+    clients = require('../adapters/clients'),
+    googleapis = require('googleapis'),
     CLIENT_ID = clients.google.id,
     CLIENT_SECRET = clients.google.secret,
     REDIRECT_URL = clients.google.redir,
     OAuth2Client = googleapis.OAuth2Client,
     oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
+
 module.exports = {
 
+  /**
+   * A route for logging in with google+
+   * @param  {Object} req Sails request object
+   * @param  {Object} res Sails response object
+   */
   landing: function(req, res) {
     googleapis
       .discover('plus', 'v1')
@@ -42,6 +45,11 @@ module.exports = {
     });
   },
 
+  /**
+   * The google api authentication redirection route
+   * @param  {Object} req Sails request object.
+   * @param  {[type]} res Sails response object.
+   */
   authenticate: function(req, res){
     var code = req.query.code;
 
@@ -69,9 +77,6 @@ module.exports = {
             });        
       });
     });
-
-
-
   },
 
   destroy: function(req, res) {
