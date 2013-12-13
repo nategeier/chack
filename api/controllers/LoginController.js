@@ -15,49 +15,68 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-
-
-var googleapis = require('googleapis');
-var OAuth2Client = googleapis.OAuth2Client;
-
 var Login = require('../models/Login'),
-  clients = require('../adapters/clients');
-
-// Client ID and client secret are available at
-// https://code.google.com/apis/console
-var CLIENT_ID = clients.google.id,
-  CLIENT_SECRET = clients.google.secret,
-  REDIRECT_URL = clients.google.redir;
-
-
-
+    clients = require('../adapters/clients'),
+    googleapis = require('googleapis'),
+    CLIENT_ID = clients.google.id,
+    CLIENT_SECRET = clients.google.secret,
+    REDIRECT_URL = clients.google.redir,
+    OAuth2Client = googleapis.OAuth2Client,
+    oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
 
 module.exports = {
 
+  /**
+   * A route for logging in with google+
+   * @param  {Object} req Sails request object
+   * @param  {Object} res Sails response object
+   */
   landing: function(req, res) {
-
     googleapis
       .discover('plus', 'v1')
       .execute(function(err, client) {
-
-      var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
-      // retrieve an access token
-      Login.getUrl(oauth2Client, function(url) {
-        return res.view({
-          oauthUrl: url
+        var url = oauth2Client.generateAuthUrl({
+          access_type: 'offline',
+          scope: 'https://www.googleapis.com/auth/plus.me'
         });
-      });
+
+        res.view({oauthUrl: url});
     });
   },
+
+  /**
+   * The google api authentication redirection route
+   * @param  {Object} req Sails request object.
+   * @param  {[type]} res Sails response object.
+   */
   authenticate: function(req, res){
+    var code = req.query.code;
 
-    googleapis.discover('plus', 'v1').execute(function(err, client) {
-      var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
-      Login.getUserProfile(client, oauth2Client, 'me', Login.printUserProfile);
+    oauth2Client.getToken(code, function(err, tokens) {
 
+      // todo save that token to mongodb
+      oauth2Client.credentials = {
+        access_token: tokens.access_token
+      };
+
+      // For this contrived example, I have to do all of this in the getToken callback
+      // because I haven't made a way of persisting the access_token to mongodb, and I need 
+      // the credentials to be set on oauth2Client in order to make this data request. 
+      // Anyways, this will send back the JSON profile data from g+.
+      googleapis
+        .discover('plus', 'v1')
+        .execute(function(err, client) {
+          client
+            .plus.people.get({userId: 'me'})
+            .withAuthClient(oauth2Client)
+            .execute(function(err, result, body) {
+              if (!err) {
+                res.json(result);
+              }
+            });        
+      });
     });
-
   },
 
   destroy: function(req, res) {
