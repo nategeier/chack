@@ -36,10 +36,6 @@ module.exports.routes = {
   // (This would also work if you had a file at: `/views/home.ejs`)
   '/': {
     view: 'home/index'
-  },
-  '/auth/google/callback':{
-    controller: 'LoginController',
-    action: 'authenticate'
   }
 
   /*
